@@ -8,4 +8,4 @@ The idea is to `generate passwords using Python`, encrypt them along with a `lab
 
 To `retrieve` a certain password, simply `query` the smart contract using the `label`, and there's the possibility to `retrieve all labels` from the smart contract.
 
-Note that the master key is `required` to retreive labels and/or passwords, since everything is `encrypted` in the smart contract to avoid exposing which services a client is using.
+Note that the master key is `required` to retreive labels and/or passwords, since everything is `encrypted` in the smart contract to avoid exposing which services a client is using
