@@ -1,9 +1,8 @@
 from Crypto.Cipher import AES
 from hashlib import sha256
-from os import urandom
 from sys import argv
 from base64 import b64encode, b64decode
-from json import dumps, loads
+from json import dumps
 import secrets
 import logging
 
@@ -31,7 +30,7 @@ class Keeper():
 
         return b64encode(encrypted_target), nonce
 
-    def uploadPassword(self, target:bytes, label:str, nonce: bytes):
+    def uploadPassword(self, target, label, nonce):
         logging.info(f'target: {target}\n label: {label}\n nonce: {nonce.hex()}')
 
     def getPassword(self, label):
@@ -64,7 +63,7 @@ class Keeper():
                         break
                     except AssertionError:
                         logging.error('[-] Label Must be between 1 and 20 characters long')
-                
+
                 while True:
                     try:
                         username = input('[~] Username(20 characters max, hit enter to leave empty): ')
