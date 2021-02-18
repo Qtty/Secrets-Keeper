@@ -2,7 +2,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.number import bytes_to_long, long_to_bytes
 from hashlib import sha256
 from sys import argv
-from contract import KeeperAPI
+from keeper_api import KeeperAPI
 import secrets
 import logging
 
