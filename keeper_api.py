@@ -44,3 +44,26 @@ class KeeperAPI(Deployer):
             return True
 
         return False
+
+    def removeLabel(self, index):
+        previous_length = self.getLabelsLength()
+
+        contract_txn = self.contract.functions.removeLabel(index).buildTransaction(
+            {
+                'from': self.account.address,
+                'nonce': self.web3.eth.getTransactionCount(self.account.address),
+                'gas': self.contract.functions.removeLabel(index).estimateGas(),
+                'gasPrice': self.web3.eth.gas_price,
+                'value': self.web3.toWei(0, 'ether')
+            }
+        )
+
+        signed = self.account.signTransaction(contract_txn)
+        tx_hash = self.web3.eth.sendRawTransaction(signed.rawTransaction)
+        print(f'Transaction Hash: {tx_hash.hex()}')
+        tx_receipt = self.web3.eth.waitForTransactionReceipt(tx_hash)
+
+        if tx_receipt['status'] and self.getLabelsLength() < previous_length:
+            return True
+
+        return False

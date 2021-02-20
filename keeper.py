@@ -3,6 +3,7 @@ from Crypto.Util.number import bytes_to_long, long_to_bytes
 from hashlib import sha256
 from sys import argv
 from keeper_api import KeeperAPI
+from json import dumps
 import secrets
 import logging
 
@@ -35,18 +36,59 @@ class Keeper():
         return bytes_to_long(encrypted_target + nonce)
 
     def uploadPassword(self, target, label):
-        logging.info(f'target: {target}\n label: {label}\n')
+        encrypted_label, nonce = self.oracle(label.encode('utf-8'))
+        label = bytes_to_long(encrypted_label + nonce)
+
+        if self.contract.addPassword(label, target):
+            logging.info('[+] Password Uploaded Succesfully')
+        else:
+            logging.error('[-] Upload Failed')
+
+    def getLabels(self):
+        labels = {}
+
+        for i in range(self.contract.getLabelsLength()):
+            encrypted_label = long_to_bytes(self.contract.getLabel(i))
+            label = self.oracle(encrypted_label[:-8], encrypted_label[-8:])[0]
+            labels[label.decode('utf-8')] = (encrypted_label, i)
+
+        return labels
 
     def getPassword(self, label):
-        target = long_to_bytes(int(input('target: ')))
+        labels = self.getLabels()
 
-        print(self.oracle(target[:-8], target[-8:]))
+        if label not in labels.keys():
+            logging.error('[-] Label does not exist in the smart contract')
+            return None
+
+        encrypted_target = long_to_bytes(self.contract.getTarget(bytes_to_long(labels[label][0])))
+        target, nonce = self.oracle(encrypted_target[:-8], encrypted_target[-8:])
+
+        password = target[:12].decode('utf-8')
+        username = target[12:].decode('utf-8')
+
+        logging.info(dumps({'label': label, 'password': password, 'username': username}, indent=4))
+
+    def removePassword(self, label):
+        labels = self.getLabels()
+
+        if label not in labels.keys():
+            logging.error('[-] Label does not exist in the smart contract')
+            return None
+
+        label_index = labels[label][1]
+        assert self.contract.getLabel(label_index) == bytes_to_long(labels[label][0])
+
+        if self.contract.removeLabel(label_index):
+            logging.info('[+] Password Removed Succesfully')
+        else:
+            logging.error('[-] Operation Failed')
 
     def main(self):
         while True:
             print('[~] which operation would you like to perform?\n')
             print('[1] Generate a new Password')
-            print('[2] Update an already existing Password')
+            print('[2] Get All Stored Labels')
             print('[3] Remove a Password')
             print('[4] Retreive a Password')
             print('[5] Exit\n')
@@ -75,8 +117,26 @@ class Keeper():
                     except AssertionError:
                         logging.error(f'[-] Username Must be {self.USERNAME_LENGTH} characters max')
 
-                target = self.generatePassword(username)
-                self.uploadPassword(target, label)
+                if label not in self.getLabels().keys():
+                    target = self.generatePassword(username)
+                    self.uploadPassword(target, label)
+                else:
+                    logging.error('[-] Label already exists')
+
+            elif choice == 2:
+                labels = self.getLabels()
+                logging.info(f'Available Labels: {dumps(list(labels.keys()), indent=4)}')
+
+            elif choice == 3:
+                while True:
+                    try:
+                        label = input(f'[~] Label(Must be between 1 and {self.LABEL_LENGTH} characters long): ')
+                        assert len(label) in range(1, self.LABEL_LENGTH + 1)
+                        break
+                    except AssertionError:
+                        logging.error(f'[-] Label Must be between 1 and {self.LABEL_LENGTH} characters long')
+
+                self.removePassword(label)
 
             elif choice == 4:
                 while True:
@@ -88,6 +148,7 @@ class Keeper():
                         logging.error(f'[-] Label Must be between 1 and {self.LABEL_LENGTH} characters long')
 
                 self.getPassword(label)
+
             else:
                 break
 

@@ -73,6 +73,5 @@ if __name__ == '__main__':
         print('Usage: python deployer.py <infura provider> <private key>')
         exit(0)
 
-    print(argv)
     deployer = Deployer(*argv[1:])
     print(f"New Contract' Address: {deployer.deploy('smart contracts/Keeper.sol')}")
