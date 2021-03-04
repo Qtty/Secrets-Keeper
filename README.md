@@ -17,17 +17,14 @@ Note that the master key is `required` to retreive labels and/or passwords, sinc
 To setup the Python part, simply start a new virtualenv, and install the dependencies:
 ```bash
 python -m venv venv
-source venv/bin/acitvate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 PS: the python version used during developement is `3.8.5`
 
 ### Sodility
 
-For this part, simply install `solidity compiler` package version 0.8.1:
-```bash
-sudo apt install solc
-```
+For this part, check the [official guide](https://docs.soliditylang.org/en/v0.8.0/installing-solidity.html) on how to install the compiler
 
 ## Getting Started
 
