@@ -5,6 +5,7 @@ from sys import argv
 from keeper_api import KeeperAPI
 from json import dumps
 import secrets
+import coloredlogs
 import logging
 
 
@@ -86,12 +87,12 @@ class Keeper():
 
     def main(self):
         while True:
-            print('[~] which operation would you like to perform?\n')
-            print('[1] Generate a new Password')
-            print('[2] Get All Stored Labels')
-            print('[3] Remove a Password')
-            print('[4] Retreive a Password')
-            print('[5] Exit\n')
+            logging.info('\n[~] which operation would you like to perform?\n')
+            logging.info('[1] Generate a new Password')
+            logging.info('[2] Get All Stored Labels')
+            logging.info('[3] Remove a Password')
+            logging.info('[4] Retreive a Password')
+            logging.info('[5] Exit\n')
 
             try:
                 choice = int(input('[~] choice: '))
@@ -154,7 +155,7 @@ class Keeper():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    coloredlogs.install(level='info', fmt='%(msg)s')
 
     if len(argv) < 5:
         logging.error('[-] Usage: python keeper.py <master key> <contract address> <infura provider> <private key>')

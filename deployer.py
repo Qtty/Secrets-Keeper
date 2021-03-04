@@ -3,6 +3,8 @@ from eth_account import Account
 from solc import compile_standard
 from json import loads
 from sys import argv
+import coloredlogs
+import logging
 
 
 class Deployer():
@@ -59,7 +61,7 @@ class Deployer():
 
         signed = self.account.signTransaction(contract_txn)
         tx_hash = self.web3.eth.sendRawTransaction(signed.rawTransaction)
-        print(f'Transaction Hash: {tx_hash.hex()}')
+        logging.info(f'Transaction Hash: {tx_hash.hex()}')
         tx_receipt = self.web3.eth.waitForTransactionReceipt(tx_hash)
 
         if tx_receipt['status']:
@@ -69,9 +71,10 @@ class Deployer():
 
 
 if __name__ == '__main__':
+    coloredlogs.install(level='info', fmt='%(msg)s')
     if len(argv) < 3:
-        print('Usage: python deployer.py <infura provider> <private key>')
+        logging.error('Usage: python deployer.py <infura provider> <private key>')
         exit(0)
 
     deployer = Deployer(*argv[1:])
-    print(f"New Contract' Address: {deployer.deploy('smart contracts/Keeper.sol')}")
+    logging.info(f"New Contract' Address: {deployer.deploy('smart contracts/Keeper.sol')}")

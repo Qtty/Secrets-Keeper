@@ -1,4 +1,5 @@
 from deployer import Deployer
+import logging
 
 
 class KeeperAPI(Deployer):
@@ -16,7 +17,7 @@ class KeeperAPI(Deployer):
         if index in range(self.getLabelsLength()):
             return self.contract.functions.labels(index).call()
         else:
-            print('Operation will revert, index bigger than labels length')
+            logging.error('Operation will revert, index bigger than labels length')
             return -1
 
     def getTarget(self, label):
@@ -37,7 +38,7 @@ class KeeperAPI(Deployer):
 
         signed = self.account.signTransaction(contract_txn)
         tx_hash = self.web3.eth.sendRawTransaction(signed.rawTransaction)
-        print(f'Transaction Hash: {tx_hash.hex()}')
+        logging.info(f'Transaction Hash: {tx_hash.hex()}')
         tx_receipt = self.web3.eth.waitForTransactionReceipt(tx_hash)
 
         if tx_receipt['status'] and self.getLabelsLength() > previous_length:
@@ -60,7 +61,7 @@ class KeeperAPI(Deployer):
 
         signed = self.account.signTransaction(contract_txn)
         tx_hash = self.web3.eth.sendRawTransaction(signed.rawTransaction)
-        print(f'Transaction Hash: {tx_hash.hex()}')
+        logging.info(f'Transaction Hash: {tx_hash.hex()}')
         tx_receipt = self.web3.eth.waitForTransactionReceipt(tx_hash)
 
         if tx_receipt['status'] and self.getLabelsLength() < previous_length:
